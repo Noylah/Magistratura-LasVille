@@ -79,22 +79,22 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!identificativo.includes('@')) {
                 console.log(`3a. Identificativo non è una mail, cerco nel database: ${identificativo}`);
                 
-                // === AGGIORNAMENTO FATTO QUI: TABELLA 'utenti', COLONNA 'codice_fiscale' ===
-                const NOME_TABELLA_PROFILI = 'utenti'; // 🚨 AGGIORNA CON IL NOME ESATTO DELLA TUA TABELLA 🚨
-                const NOME_COLONNA_CF = 'codice_fiscale'; // 🚨 AGGIORNA CON IL NOME ESATTO DELLA TUA COLONNA CF 🚨
-                // ==============================================================================
+                // === AGGIORNAMENTO FATTO QUI: TABELLA 'utenti', COLONNA 'username' ===
+                const NOME_TABELLA_PROFILI = 'utenti'; // Tabella utenti
+                const NOME_COLONNA_CF = 'username'; // Colonna contenente lo username/CF
+                // ====================================================================
                 
-                // Query per trovare l'email usando l'identificativo (Codice Fiscale)
+                // Query per trovare l'email usando l'identificativo (Username/CF)
                 const { data: userData, error: dbError } = await supabaseClient
                     .from(NOME_TABELLA_PROFILI)
                     .select('email')
                     .eq(NOME_COLONNA_CF, identificativo)
                     .single(); 
 
-                // PGRST116 = nessun risultato trovato. Qualsiasi altro codice è un errore di sistema.
+                // PGRST116 = nessun risultato trovato. Qualsiasi altro codice è un errore di sistema o RLS.
                 if (dbError && dbError.code !== 'PGRST116') { 
-                    console.error("ERRORE DB LOOKUP (Tabella o RLS):", dbError);
-                    showMessage(`Errore: Impossibile cercare l'identificativo. Controlla il nome della tabella ('${NOME_TABELLA_PROFILI}') e le Policy RLS.`, true); 
+                    console.error("ERRORE DB LOOKUP (Tabella, Colonna o RLS):", dbError);
+                    showMessage(`Errore: Impossibile cercare l'identificativo. Controlla le Policy RLS sulla tabella '${NOME_TABELLA_PROFILI}'.`, true); 
                     return;
                 }
 

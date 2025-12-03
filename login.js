@@ -1,6 +1,6 @@
 // CONFIGURAZIONE
-const SUPABASE_URL = 'INSERISCI_QUI_IL_TUO_SUPABASE_URL'; // Da sostituire
-const SUPABASE_ANON_KEY = 'INSERISCI_QUI_LA_TUA_ANON_KEY'; // Da sostituire
+const SUPABASE_URL = 'https://goupmhzwdqcicaztkrzc.supabase.coL'; // Da sostituire
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvdXBtaHp3ZHFjaWNhenRrcnpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1OTE1NzgsImV4cCI6MjA4MDE2NzU3OH0.Aua4gfzqU0iKLSO2BQEEZdt-oXWhrbNRCx_TFNkVmAA'; // Da sostituire
 
 // Variabili globali per il client e il box messaggi
 let supabaseClient;

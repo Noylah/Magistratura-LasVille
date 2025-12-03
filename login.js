@@ -23,7 +23,7 @@ const hideMessage = () => {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("1. DOM Caricato. Inizializzazione....");
+    console.log("1. DOM Caricato. Inizializzazione...");
 
     // Otteniamo l'elemento per i messaggi
     messageBox = document.getElementById('message-box');
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             hideMessage();
 
-            console.log("3. Tentativo di invio form....");
+            console.log("3. Tentativo di invio form...");
 
             const usernameInput = document.getElementById('username');
             const passwordInput = document.getElementById('password');
@@ -72,34 +72,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // ===============================================
             // FASE 1: CERCA L'EMAIL ASSOCIATA ALL'IDENTIFICATIVO
+            // (NECESSARIA SOLO SE L'IDENTIFICATIVO NON È L'EMAIL)
             // ===============================================
             let emailPerLogin = identificativo;
 
-            // Se l'identificativo NON assomiglia a un'email, cerca nel database
+            // Se l'identificativo NON assomiglia a un'email, cerchiamo il dato nel DB.
             if (!identificativo.includes('@')) {
-                console.log(`3a. Identificativo non è una mail, cerco nel database: ${identificativo}`);
+                console.log(`3a. Identificativo non è una mail, cerco nel database la colonna email associata allo username: ${identificativo}`);
                 
-                // === AGGIORNAMENTO FATTO QUI: TABELLA 'utenti', COLONNA 'username' ===
+                // === CONFIGURAZIONE TABELLA E COLONNE FINALI ===
                 const NOME_TABELLA_PROFILI = 'utenti'; // Tabella utenti
-                const NOME_COLONNA_CF = 'username'; // Colonna contenente lo username/CF
-                // ====================================================================
+                const NOME_COLONNA_USERNAME = 'username'; // Colonna identificativa (che contiene il CF, ID, ecc.)
+                const NOME_COLONNA_EMAIL = 'email'; // 🚨🚨 QUESTA COSTANTE DEVE ESSERE IL NOME ESATTO DELLA TUA COLONNA EMAIL 🚨🚨
+                // ==============================================
                 
                 // Query per trovare l'email usando l'identificativo (Username/CF)
                 const { data: userData, error: dbError } = await supabaseClient
                     .from(NOME_TABELLA_PROFILI)
-                    .select('email')
-                    .eq(NOME_COLONNA_CF, identificativo)
+                    .select(NOME_COLONNA_EMAIL) 
+                    .eq(NOME_COLONNA_USERNAME, identificativo)
                     .single(); 
 
                 // PGRST116 = nessun risultato trovato. Qualsiasi altro codice è un errore di sistema o RLS.
                 if (dbError && dbError.code !== 'PGRST116') { 
-                    console.error("ERRORE DB LOOKUP (Tabella, Colonna o RLS):", dbError);
-                    showMessage(`Errore: Impossibile cercare l'identificativo. Controlla le Policy RLS sulla tabella '${NOME_TABELLA_PROFILI}'.`, true); 
+                    console.error("ERRORE DB LOOKUP (RLS o colonna email mancante):", dbError);
+                    showMessage(`Errore: Impossibile cercare l'identificativo. Controlla il nome della colonna email ('${NOME_COLONNA_EMAIL}') e le Policy RLS.`, true); 
                     return;
                 }
 
-                if (userData && userData.email) {
-                    emailPerLogin = userData.email;
+                // Usiamo il nome della colonna per accedere al dato
+                if (userData && userData[NOME_COLONNA_EMAIL]) {
+                    emailPerLogin = userData[NOME_COLONNA_EMAIL];
                     console.log(`3b. Trovata email associata: ${emailPerLogin}`);
                 } else {
                     showMessage("Credenziali non valide. Identificativo non trovato.", true);
@@ -113,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // ===============================================
             try {
                 const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: emailPerLogin, 
+                    email: emailPerLogin, // Questa deve essere l'email, non lo username
                     password: password,
                 });
 

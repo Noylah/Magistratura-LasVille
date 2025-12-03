@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magistratura - Portale Gestionale - Accesso</title>
     <link rel="stylesheet" href="style.css">
-    
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
 </head>
 <body class="login-page">
     <div class="login-container">
@@ -18,20 +16,26 @@
         
         <form class="login-form" id="loginForm"> 
             <div class="input-group">
-                <label for="username">Nome Utente / Codice Fiscale</label>
-                <input type="text" id="username" name="username" required>
+                <label for="username">Nome Utente</label>
+                <!-- Modificato da 'email' a 'username' -->
+                <input type="text" id="username" name="username" required> 
             </div>
             <div class="input-group">
                 <label for="password">Password</label>
-                 <input type="password" id="password" name="password" required>
+                <input type="password" id="password" name="password" required>
             </div>
+            <!-- L'ID per il messaggio di errore è stato unificato per coerenza -->
+            <div id="message-box" class="message-box" style="display: none;"></div>
             <button type="submit" class="login-button">ACCEDI</button>
             
-            <p id="errorMessage" style="color: var(--primary-color); margin-top: 15px; font-weight: bold; display: none;">Credenziali non valide.</p>
             <a href="#" class="forgot-password">Hai dimenticato la password?</a>
         </form>
     </div>
     
+    <!-- ✅ LIBRERIA SUPABASE: DEVE ESSERE CARICATA PRIMA DEL TUO SCRIPT -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
+    
+    <!-- TUO SCRIPT DI LOGICA -->
     <script src="login.js"></script>
 </body>
 </html>

@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             hideMessage();
 
-            console.log("3. Tentativo di invio form...");
+            console.log("3. Tentativo di invio form....");
 
             const usernameInput = document.getElementById('username');
             const passwordInput = document.getElementById('password');

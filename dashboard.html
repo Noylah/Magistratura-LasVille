@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magistratura - Portale Gestionale</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+    <div class="layout-container">
+        
+        <aside class="sidebar">
+            <div class="logo-area">
+                <span class="logo-icon material-icons">account_balance</span>
+                <span class="logo-text">Magistratura</span>
+                <span class="sub-text">Portale Gestionale</span>
+            </div>
+
+            <nav class="nav-menu">
+                <h3>NAVIGAZIONE</h3>
+                <a href="dashboard.html" class="nav-item active">
+                    <span class="material-icons">dashboard</span>
+                    Dashboard
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="material-icons">group</span>
+                    Gestione Utenti
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="material-icons">archive</span>
+                    Archivi
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="material-icons">gavel</span>
+                    Tribunali
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="material-icons">calendar_today</span>
+                    Calendario
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="material-icons">settings</span>
+                    Impostazioni
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            
+            <header class="top-bar">
+                <div class="app-title">Dashboard</div>
+                <div class="user-info-area">
+                    <div id="user-role-display" class="user-role-tag">
+                        <span class="material-icons">vpn_key</span> Ruolo Caricato...
+                    </div>
+                    <button class="extra-role-btn">
+                        <span class="material-icons">admin_panel_settings</span>
+                        Ruolo Extra
+                    </button>
+                </div>
+            </header>
+
+            <section class="dashboard-area">
+                <h2 id="welcome-message">Benvenuto nel Portale Gestionale.</h2>
+                <p>Questa è la pagina principale del portale gestionale della Repubblica di LasVille.</p>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Indagini in Corso</h3>
+                        <p class="stat-number">48</p>
+                        <p class="stat-change">+4 nuove assegnazioni</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Indagini Completate</h3>
+                        <p class="stat-number">123</p>
+                        <p class="stat-change">Obiettivo mensile raggiunto</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Nuove Assegnazioni</h3>
+                        <p class="stat-number">2</p>
+                        <p class="stat-change">Attendono la tua revisione</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Archiviazioni Totali</h3>
+                        <p class="stat-number">45,231</p>
+                        <p class="stat-change">Ultimo backup: oggi</p>
+                    </div>
+                </div>
+
+                <div class="notifications-section">
+                    <h3>Notifiche Recenti</h3>
+                    <p class="sub-text">Ultimi aggiornamenti del sistema</p>
+                    <ul>
+                        <li><span class="material-icons notification-dot">lens_widen</span> **Notifica di Sistema:** Manutenzione programmata il 15/12.</li>
+                        <li><span class="material-icons notification-dot">fiber_manual_record</span> **Nuova Indagine:** Assegnato il caso 'Guerra tra Gang' (Priorità Alta).</li>
+                        <li><span class="material-icons notification-dot">fiber_manual_record</span> **Sentenza:** Giudizio di primo grado emesso nel caso 'Falsa Testimonianza'.</li>
+                    </ul>
+                </div>
+
+            </section>
+        </main>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userRole = localStorage.getItem('userRole');
+            const userName = localStorage.getItem('userName'); // Preleviamo il nome
+            const welcomeMessageElement = document.getElementById('welcome-message');
+            const roleDisplayElement = document.getElementById('user-role-display');
+
+            if (!userRole) {
+                // Se non c'è un ruolo, reindirizza alla login
+                window.location.href = 'index.html'; 
+            } else {
+                // 1. Aggiorna il messaggio di Benvenuto
+                if (welcomeMessageElement && userName) {
+                    welcomeMessageElement.textContent = `Benvenuto, ${userRole} ${userName}`;
+                } else if (welcomeMessageElement) {
+                    // Se il nome non è disponibile (es. campo vuoto nel DB)
+                    welcomeMessageElement.textContent = `Benvenuto, ${userRole}`;
+                }
+
+                // 2. Aggiorna il tag del ruolo nell'header
+                if (roleDisplayElement) {
+                    roleDisplayElement.innerHTML = `<span class="material-icons">vpn_key</span> ${userRole}`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

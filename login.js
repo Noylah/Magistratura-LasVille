@@ -1,11 +1,22 @@
 const SUPABASE_URL = 'INSERISCI_QUI_IL_TUO_SUPABASE_URL'; // Sostituire con il tuo URL
 const SUPABASE_ANON_KEY = 'INSERISCI_QUI_LA_TUA_ANON_KEY'; // Sostituire con la tua KEY
 
-// Inizializza Supabase Client
-// Nota: 'Supabase' è disponibile perché la CDN è caricata nell'HTML prima di questo script.
-const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Variabile dichiarata ma non ancora inizializzata
+let supabase;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // ===============================================
+    // ✅ RISOLUZIONE PROBLEMA 'Supabase is not defined'
+    // Inizializziamo il client Supabase qui, dove siamo certi che la libreria sia caricata.
+    // ===============================================
+    try {
+        supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch (e) {
+        console.error("ERRORE CRITICO: La libreria Supabase non è stata caricata correttamente nell'HTML. Verifica il tag <script src='...'/>.", e);
+        // Puoi aggiungere un messaggio visibile all'utente qui se vuoi
+        return;
+    }
+    
     // L'ID del form è 'loginForm' nel file index.html
     const loginForm = document.getElementById('loginForm');
     const messageBox = document.getElementById('message-box');

@@ -1,7 +1,8 @@
 const SUPABASE_URL = 'https://goupmhzwdqcicaztkrzc.supabase.co'; // <-- CONTROLLA QUI!
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvdXBtaHp3ZHFjaWNhenRrcnpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1OTE1NzgsImV4cCI6MjA4MDE2NzU3OH0.Aua4gfzqU0iKLSO2BQEEZdt-oXWhrbNRCx_TFNkVmAA'; // <-- E ANCHE QUI!
 
-const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// ✅ CORREZIONE: Usiamo la sintassi corretta per creare il client dalla libreria globale 'supabase'.
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log("3. DOM della Dashboard pronto. Inizializzazione logica.");
@@ -64,7 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             
             // 1. Pulizia Sessione Supabase (opzionale, ma raccomandato)
-            const { error } = await supabase.auth.signOut();
+            // ✅ CORREZIONE: Uso della variabile corretta 'supabaseClient'
+            const { error } = await supabaseClient.auth.signOut(); 
 
             if (error) {
                 console.error('Errore durante il logout da Supabase:', error.message);

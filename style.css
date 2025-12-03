@@ -115,3 +115,11 @@ body {
 .forgot-password:hover {
     color: var(--primary-color);
 }
+
+/* In style.css, trova o aggiungi: */
+
+.stats-grid {
+    display: grid;
+    gap: 20px;
+    margin-bottom: 40px;
+}

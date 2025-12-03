@@ -1,86 +1,86 @@
-const SUPABASE_URL = 'https://goupmhzwdqcicaztkrzc.supabase.co'; // <-- CONTROLLA QUI!
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvdXBtaHp3ZHFjaWNhenRrcnpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1OTE1NzgsImV4cCI6MjA4MDE2NzU3OH0.Aua4gfzqU0iKLSO2BQEEZdt-oXWhrbNRCx_TFNkVmAA'; // <-- E ANCHE QUI!
+const SUPABASE_URL = 'https://goupmhzwdqcicaztkrzc.supabase.co'; 
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvdXBtaHp3ZHFjaWNhenRrcnpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1OTE1NzgsImV4cCI6MjA4MDE2NzU1M30.Aua4gfzqU0iKLSO2BQEEZdt-oXWhrbNRCx_TFNkVmAA';
 
-// ✅ CORREZIONE: Usiamo la sintassi corretta per creare il client dalla libreria globale 'supabase'.
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Usa window.supabase per prevenire l'errore "supabase non definito"
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("3. DOM della Dashboard pronto. Inizializzazione logica.");
+    const loginForm = document.getElementById('loginForm');
+    const messageBox = document.getElementById('message-box');
 
-    const userDataString = localStorage.getItem('userData');
-    
-    if (!userDataString) {
-        // Teoricamente questo non dovrebbe succedere grazie ad authGuard.js, 
-        // ma è un buon fallback.
-        console.error("Errore: Dati utente non disponibili. Reindirizzamento forzato.");
-        window.location.href = 'index.html'; 
+    if (!loginForm) {
+        console.error("Form di login non trovato. Verifica index.html");
         return;
     }
 
-    const userData = JSON.parse(userDataString);
-    const { nome, ruolo } = userData;
-    console.log(`4. Utente loggato: ${nome}, Ruolo: ${ruolo}`);
+    // Inizializza o pulisci il messaggio di errore
+    const showMessage = (text, isError = false) => {
+        messageBox.textContent = text;
+        messageBox.style.display = 'block';
+        messageBox.style.backgroundColor = isError ? '#f44336' : '#8BC34A';
+        messageBox.style.color = 'white';
+        messageBox.style.padding = '10px';
+        messageBox.style.borderRadius = '5px';
+        messageBox.style.marginBottom = '15px';
+        messageBox.style.textAlign = 'center';
+    };
 
-    // ===================================
-    // FUNZIONALITÀ DI PERSONALIZZAZIONE UI
-    // ===================================
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        messageBox.style.display = 'none'; // Nasconde i messaggi precedenti
 
-    // 1. Visualizzazione del Nome e Ruolo
-    const welcomeMessageElement = document.getElementById('welcome-user-message');
-    const roleDisplayElement = document.getElementById('user-role-display');
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
 
-    // Questi elementi DOM VENGONO ORA TROVATI IN dashboard.html!
-    if (welcomeMessageElement) {
-        welcomeMessageElement.textContent = `Benvenuto, ${nome} (${ruolo})`;
-    }
-    if (roleDisplayElement) {
-        roleDisplayElement.textContent = ruolo;
-    }
+        if (!username || !password) {
+            showMessage("Inserisci nome utente e password.", true);
+            return;
+        }
 
-    // 2. Controllo Accesso alla Navigazione (Role-Based Access)
-    const navItems = document.querySelectorAll('#main-navigation li');
-    navItems.forEach(item => {
-        const requiredRoles = item.getAttribute('data-role');
-        
-        if (requiredRoles && requiredRoles !== 'all') {
-            const allowedRoles = requiredRoles.split(',');
-            // Se il ruolo dell'utente NON è incluso nei ruoli consentiti, nascondi la voce
-            if (!allowedRoles.includes(ruolo)) {
-                item.style.display = 'none';
-                console.log(`- Nascosto: ${item.querySelector('a').textContent.trim()} (Ruolo '${ruolo}' non autorizzato)`);
-            } else {
-                item.style.display = ''; // Assicura che sia visibile
+        try {
+            // Chiamata RPC alla funzione custom_login nel database
+            const { data, error } = await supabase.rpc('custom_login', {
+                username_input: username,
+                password_input: password
+            });
+
+            if (error) {
+                // Gestisce gli errori sollevati dalla funzione SQL (es. Utente non trovato, Password errata)
+                const errorMessage = error.message.includes('LOGIN_ERROR') 
+                    ? error.message.split(': ')[1] 
+                    : "Errore di accesso generico.";
+                
+                showMessage(errorMessage, true);
+                console.error("Errore RPC:", error);
+                return;
             }
+
+            // CONTROLLO CRITICO: I dati JSON sono stati restituiti correttamente.
+            if (data && data.id && data.ruolo) {
+                console.log("Login riuscito. Dati utente ricevuti:", data);
+                
+                // ✅ SALVA L'OGGETTO JSON COMPLETO NEL LOCAL STORAGE
+                localStorage.setItem('userData', JSON.stringify(data));
+                
+                showMessage(`Accesso riuscito per ${data.nome}. Reindirizzamento...`, false);
+                
+                // Reindirizza alla dashboard dopo un breve ritardo
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 500);
+
+            } else {
+                showMessage("Risposta RPC inattesa o incompleta.", true);
+                console.error("Dati ricevuti inattesi:", data);
+            }
+
+        } catch (e) {
+            showMessage("Errore di rete o del server.", true);
+            console.error("Eccezione durante il login:", e);
         }
     });
 
-    console.log("5. Personalizzazione UI completata. Pronta per l'uso.");
-    
-    // ===================================
-    // FUNZIONALITÀ LOGOUT
-    // ===================================
-    const logoutButton = document.getElementById('logout-button');
-    if (logoutButton) {
-        logoutButton.addEventListener('click', async (e) => {
-            e.preventDefault();
-            
-            // 1. Pulizia Sessione Supabase (opzionale, ma raccomandato)
-            // ✅ CORREZIONE: Uso della variabile corretta 'supabaseClient'
-            const { error } = await supabaseClient.auth.signOut(); 
-
-            if (error) {
-                console.error('Errore durante il logout da Supabase:', error.message);
-                // Continuiamo comunque con la pulizia locale
-            }
-            
-            // 2. Pulizia Dati Locali
-            localStorage.removeItem('userData');
-            localStorage.removeItem('supabase.auth.token'); // Pulisce il token Supabase
-            
-            console.log("Logout effettuato. Pulizia localStorage completata.");
-            
-            // 3. Reindirizzamento alla pagina di login
-            window.location.href = 'index.html';
-        });
-    }
+    // Funzione di pulizia per rimuovere i dati di sessione se si torna alla pagina di login
+    localStorage.removeItem('userData');
+    localStorage.removeItem('supabase.auth.token');
 });

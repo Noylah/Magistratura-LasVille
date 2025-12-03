@@ -23,7 +23,7 @@ const hideMessage = () => {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("1. DOM Caricato. Inizializzazione....");
+    console.log("1. DOM Caricato. Inizializzazione...");
 
     // Otteniamo l'elemento per i messaggi
     messageBox = document.getElementById('message-box');
@@ -72,16 +72,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // ===============================================
             // FASE 1: AUTENTICAZIONE TRAMITE FUNZIONE CUSTOM (RPC)
+            // L'RPC 'custom_login' verifica username e password direttamente nel DB.
             // ===============================================
-            console.log(`3a. Tentativo di login diretto (username/password) con identificativo: ${identificativo}`);
+            console.log(`3a. Tentativo di login RPC con username: ${identificativo}`);
 
-            // === CONFIGURAZIONE FUNZIONE RPC ===
-            // 🚨 DEVI CREARE LA FUNZIONE 'custom_login' IN SUPABASE. 
-            // Questa funzione deve ricevere username e password, verificarli sulla tabella 'utenti' 
-            // e, se validi, restituire l'ID UTENTE (UUID).
             const NOME_FUNZIONE_RPC = 'custom_login'; 
-            // ===================================
-            
             let userId = null;
 
             try {
@@ -92,18 +87,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 
                 if (rpcError) { 
-                    // Questo errore può provenire da credenziali non valide (se gestito nella funzione) 
-                    // o da problemi RLS sulla funzione stessa.
                     console.error("ERRORE RPC Login:", rpcError);
-                    showMessage("Credenziali non valide o errore di sistema. Assicurati che la funzione RPC esista e abbia RLS configurate (anon).", true); 
+                    
+                    // L'errore P0001 (raise exception) cattura i messaggi specifici di errore dal DB (Utente non trovato / Password errata)
+                    if (rpcError.code === 'P0001') {
+                        // Mostra il messaggio esatto ritornato dall'RPC (LOGIN_ERROR: Utente non trovato, ecc.)
+                         showMessage(`Credenziali non valide: ${rpcError.message.replace('LOGIN_ERROR: ', '')}`, true);
+                    } else {
+                        // Errore generico (es. RPC non trovato)
+                        showMessage("Errore di sistema. Controlla la console per i dettagli (es. RPC non trovato).", true); 
+                    }
                     return;
                 }
 
                 // Assumiamo che la funzione restituisca l'ID utente (UUID) in caso di successo
                 if (userData) {
-                    // La variabile 'userData' dovrebbe essere l'ID utente se la funzione è riuscita
                     userId = userData; 
                 } else {
+                    // Dovrebbe essere catturato dall'errore RPC sopra, ma è un fallback
                     showMessage("Credenziali non valide. Accesso negato dal sistema.", true);
                     return;
                 }
@@ -113,31 +114,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-
                 console.log("4. Login Custom RPC riuscito. ID Utente:", userId);
 
                 // ===============================================
                 // LOGICA RUOLI (SIMULATA)
-                // Se la RPC restituisse anche il ruolo, potresti usarlo qui
-                // Per ora, manteniamo la simulazione basata sull'input
+                // Se la RPC restituisse anche il ruolo, potresti usarlo qui.
+                // Per ora, lo simuliamo.
                 // ===============================================
                 let nomeUtente = "Utente";
                 let ruoloUtente = "Cittadino"; 
 
                 const lowerId = identificativo.toLowerCase();
-                if (lowerId.includes('procuratore') || lowerId.includes('ross')) {
-                    nomeUtente = "Micheal Ross";
-                    ruoloUtente = "Procuratore Generale";
-                } else if (lowerId.includes('admin')) {
-                    nomeUtente = "System Admin";
-                    ruoloUtente = "Admin";
-                } else if (lowerId.includes('giudice') || lowerId.includes('rossi')) {
-                    nomeUtente = "On. Rossi";
-                    ruoloUtente = "Giudice";
-                }
+                
+                // Mantiene il ruolo 'Amministratore' per l'utente di test che abbiamo inserito
+                if (lowerId === 'utente_test') {
+                    nomeUtente = "Utente Test";
+                    ruoloUtente = "Amministratore"; 
+                } 
+                // Aggiungi qui la logica per gli altri ruoli se necessario...
 
                 // ===============================================
-                // 5. SALVATAGGIO DATI LOCALE
+                // 5. SALVATAGGIO DATI LOCALE E REINDIRIZZAMENTO
                 // ===============================================
                 const dataSessione = {
                     id: userId,

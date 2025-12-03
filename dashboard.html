@@ -3,130 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magistratura - Portale Gestionale</title>
+    <title>Dashboard - Portale Magistratura</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Icone fornite dall'ambiente Canvas -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- LIBRERIA SUPABASE: Potrebbe servire per dati in tempo reale o funzionalità future -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- ⚠️ AUTH GUARD: Deve essere caricato per PRIMO per bloccare l'accesso non autorizzato -->
+    <script src="authGuard.js"></script> 
+
 </head>
 <body class="dashboard-page">
     <div class="layout-container">
         
+        <!-- SIDEBAR (Barra di Navigazione) -->
         <aside class="sidebar">
-            <div class="logo-area">
-                <span class="logo-icon material-icons">account_balance</span>
+            <div class="logo-section">
+                <span class="icon">⚖️</span> 
                 <span class="logo-text">Magistratura</span>
-                <span class="sub-text">Portale Gestionale</span>
+                <p style="font-size: 0.8rem; color: var(--text-secondary);">Portale Gestionale</p>
             </div>
-
-            <nav class="nav-menu">
-                <h3>NAVIGAZIONE</h3>
-                <a href="dashboard.html" class="nav-item active">
-                    <span class="material-icons">dashboard</span>
-                    Dashboard
-                </a>
-                <a href="#" class="nav-item">
-                    <span class="material-icons">group</span>
-                    Gestione Utenti
-                </a>
-                <a href="#" class="nav-item">
-                    <span class="material-icons">archive</span>
-                    Archivi
-                </a>
-                <a href="#" class="nav-item">
-                    <span class="material-icons">gavel</span>
-                    Tribunali
-                </a>
-                <a href="#" class="nav-item">
-                    <span class="material-icons">calendar_today</span>
-                    Calendario
-                </a>
-                <a href="#" class="nav-item">
-                    <span class="material-icons">settings</span>
-                    Impostazioni
-                </a>
-            </nav>
+            
+            <h4 class="navigazione">NAVIGAZIONE</h4>
+            <ul class="nav-list" id="main-navigation">
+                <!-- Data-role: attributo usato da dashboard.js per nascondere le voci in base al ruolo -->
+                <li data-role="all"><a href="#" class="active"><span class="nav-icon fas fa-home"></span>Dashboard</a></li>
+                <li data-role="Procuratore Generale,Admin"><a href="#"><span class="nav-icon fas fa-users"></span>Gestione Utenti</a></li>
+                <li data-role="all"><a href="#"><span class="nav-icon fas fa-archive"></span>Archivi</a></li>
+                <li data-role="all"><a href="#"><span class="nav-icon fas fa-gavel"></span>Tribunali</a></li>
+                <li data-role="all"><a href="#"><span class="nav-icon fas fa-calendar-alt"></span>Calendario</a></li>
+                <li data-role="Procuratore Generale,Admin"><a href="#"><span class="nav-icon fas fa-cog"></span>Impostazioni</a></li>
+            </ul>
         </aside>
 
+        <!-- MAIN CONTENT (Contenuto Principale e Header) -->
         <main class="main-content">
             
-            <header class="top-bar">
-                <div class="app-title">Dashboard</div>
-                <div class="user-info-area">
-                    <div id="user-role-display" class="user-role-tag">
-                        <span class="material-icons">vpn_key</span> Ruolo Caricato...
+            <!-- TOP HEADER -->
+            <header class="top-header">
+                <span style="color: var(--primary-color); font-weight: bold;" id="welcome-user-message">Caricamento...</span>
+                <div class="header-right">
+                    <div class="role-info">
+                        <span class="icon fas fa-user-tie"></span>
+                        <!-- ID per visualizzare il ruolo dell'utente loggato -->
+                        <span id="user-role-display">Ruolo Sconosciuto</span>
                     </div>
-                    <button class="extra-role-btn">
-                        <span class="material-icons">admin_panel_settings</span>
-                        Ruolo Extra
-                    </button>
+                    <button class="logout-button" id="logout-button"><span class="fas fa-sign-out-alt"></span> Esci</button>
                 </div>
             </header>
 
-            <section class="dashboard-area">
-                <h2 id="welcome-message">Benvenuto nel Portale Gestionale.</h2>
-                <p>Questa è la pagina principale del portale gestionale della Repubblica di LasVille.</p>
+            <!-- DASHBOARD AREA -->
+            <div class="dashboard-area">
+                <h1>Dashboard</h1>
+                <p class="welcome-message">Benvenuto nel Portale Gestionale della Magistratura.</p>
 
+                <!-- STATS GRID -->
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <h3>Indagini in Corso</h3>
-                        <p class="stat-number">48</p>
-                        <p class="stat-change">+4 nuove assegnazioni</p>
+                        <div class="stat-card-header">
+                            <span class="title">Utenti Totali</span>
+                            <span class="icon fas fa-users"></span>
+                        </div>
+                        <div class="value">2,543</div>
+                        <div class="change positive">+12% dal mese scorso</div>
                     </div>
+                    <!-- Altre card statistiche... -->
                     <div class="stat-card">
-                        <h3>Indagini Completate</h3>
-                        <p class="stat-number">123</p>
-                        <p class="stat-change">Obiettivo mensile raggiunto</p>
+                        <div class="stat-card-header">
+                            <span class="title">Procedimenti Archiviati</span>
+                            <span class="icon fas fa-archive"></span>
+                        </div>
+                        <div class="value">45,231</div>
+                        <div class="change positive">+234 questa settimana</div>
                     </div>
+                    
                     <div class="stat-card">
-                        <h3>Nuove Assegnazioni</h3>
-                        <p class="stat-number">2</p>
-                        <p class="stat-change">Attendono la tua revisione</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Archiviazioni Totali</h3>
-                        <p class="stat-number">45,231</p>
-                        <p class="stat-change">Ultimo backup: oggi</p>
+                        <div class="stat-card-header">
+                            <span class="title">Efficienza Sistema</span>
+                            <span class="icon fas fa-chart-line"></span>
+                        </div>
+                        <div class="value">98.5%</div>
+                        <div class="change positive">+2.1% dal mese scorso</div>
                     </div>
                 </div>
 
+                <!-- NOTIFICHE RECENTI -->
                 <div class="notifications-section">
-                    <h3>Notifiche Recenti</h3>
-                    <p class="sub-text">Ultimi aggiornamenti del sistema</p>
-                    <ul>
-                        <li><span class="material-icons notification-dot">lens_widen</span> **Notifica di Sistema:** Manutenzione programmata il 15/12.</li>
-                        <li><span class="material-icons notification-dot">fiber_manual_record</span> **Nuova Indagine:** Assegnato il caso 'Guerra tra Gang' (Priorità Alta).</li>
-                        <li><span class="material-icons notification-dot">fiber_manual_record</span> **Sentenza:** Giudizio di primo grado emesso nel caso 'Falsa Testimonianza'.</li>
-                    </ul>
+                    <h2>Notifiche Recenti</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">Ultimi aggiornamenti del sistema</p>
+                    <div class="notification-list">
+                        <div class="notification-item">
+                            <span class="notification-dot"></span>
+                            <div>
+                                **Nuovo procedimento assegnato**<span class="notification-time">2 ore fa</span>
+                            </div>
+                        </div>
+                        <div class="notification-item">
+                            <span class="notification-dot"></span>
+                            <div>
+                                **Documento archiviato con successo**<span class="notification-time">5 ore fa</span>
+                            </div>
+                        </div>
+                        <div class="notification-item">
+                            <span class="notification-dot"></span>
+                            <div>
+                                **Riunione del Consiglio Giudiziario**<span class="notification-time">1 giorno fa</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-            </section>
+            </div>
         </main>
     </div>
     
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const userRole = localStorage.getItem('userRole');
-            const userName = localStorage.getItem('userName'); // Preleviamo il nome
-            const welcomeMessageElement = document.getElementById('welcome-message');
-            const roleDisplayElement = document.getElementById('user-role-display');
-
-            if (!userRole) {
-                // Se non c'è un ruolo, reindirizza alla login
-                window.location.href = 'index.html'; 
-            } else {
-                // 1. Aggiorna il messaggio di Benvenuto
-                if (welcomeMessageElement && userName) {
-                    welcomeMessageElement.textContent = `Benvenuto, ${userRole} ${userName}`;
-                } else if (welcomeMessageElement) {
-                    // Se il nome non è disponibile (es. campo vuoto nel DB)
-                    welcomeMessageElement.textContent = `Benvenuto, ${userRole}`;
-                }
-
-                // 2. Aggiorna il tag del ruolo nell'header
-                if (roleDisplayElement) {
-                    roleDisplayElement.innerHTML = `<span class="material-icons">vpn_key</span> ${userRole}`;
-                }
-            }
-        });
-    </script>
+    <!-- SCRIPT PRINCIPALE: Contiene la logica per mostrare il ruolo e il logout -->
+    <script src="dashboard.js"></script>
 </body>
 </html>

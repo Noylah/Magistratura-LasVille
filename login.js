@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
     // ✅ INIZIALIZZAZIONE ROBUSTA DEL CLIENT
     // ===============================================
-    // Controllo esplicito se la libreria Supabase è stata caricata
     if (!window.supabase) {
         console.error("ERRORE CRITICO: Oggetto 'window.supabase' non trovato. Verifica l'ordine degli script in index.html!");
         showMessage("ERRORE CRITICO: Servizio di autenticazione non disponibile. Controlla il file index.html.", true);
@@ -39,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-        // Inizializzazione del client Supabase
         const { createClient } = window.supabase;
         supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log("2. Client Supabase inizializzato con successo.");
@@ -64,27 +62,68 @@ document.addEventListener('DOMContentLoaded', () => {
             const usernameInput = document.getElementById('username');
             const passwordInput = document.getElementById('password');
 
-            const username = usernameInput ? usernameInput.value.trim() : '';
+            const identificativo = usernameInput ? usernameInput.value.trim() : '';
             const password = passwordInput ? passwordInput.value.trim() : '';
 
-            if (!username || !password) {
+            if (!identificativo || !password) {
                 showMessage("Inserisci tutti i campi.");
                 return;
             }
 
             // ===============================================
-            // LOGIN SUPABASE
+            // FASE 1: CERCA L'EMAIL ASSOCIATA ALL'IDENTIFICATIVO
+            // ===============================================
+            let emailPerLogin = identificativo;
+
+            // Se l'identificativo NON assomiglia a un'email, cerca nel database
+            if (!identificativo.includes('@')) {
+                console.log(`3a. Identificativo non è una mail, cerco nel database: ${identificativo}`);
+                
+                // === AGGIORNA I NOMI DELLE TABELLE E DELLE COLONNE QUI! ===
+                const NOME_TABELLA_PROFILI = 'nome_tabella_profili'; 
+                const NOME_COLONNA_CF = 'nome_colonna_cf'; 
+                // ========================================================
+                
+                const { data: userData, error: dbError } = await supabaseClient
+                    .from(NOME_TABELLA_PROFILI)
+                    .select('email')
+                    .eq(NOME_COLONNA_CF, identificativo)
+                    .single(); // Assumiamo che il Codice Fiscale sia unico
+
+                if (dbError && dbError.code !== 'PGRST116') { // PGRST116 = nessun risultato
+                    console.error("Errore DB lookup:", dbError);
+                    // Non mostriamo un errore specifico per non dare indizi sull'esistenza dell'utente
+                    showMessage("Credenziali non valide. Riprova.", true); 
+                    return;
+                }
+
+                if (userData && userData.email) {
+                    emailPerLogin = userData.email;
+                    console.log(`3b. Trovata email associata: ${emailPerLogin}`);
+                } else {
+                    showMessage("Credenziali non valide. Identificativo non trovato.", true);
+                    return;
+                }
+            }
+
+
+            // ===============================================
+            // FASE 2: LOGIN SUPABASE CON L'EMAIL TROVATA
             // ===============================================
             try {
-                // Supabase richiede un campo 'email', qui usiamo l'input 'username'
                 const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: username,
+                    email: emailPerLogin, // Usiamo l'email trovata o l'identificativo originale se era un'email
                     password: password,
                 });
 
                 if (error) {
                     console.warn("Login fallito:", error.message);
-                    showMessage("Credenziali non valide.");
+                    
+                    if (error.message && error.message.includes('Email not confirmed')) {
+                        showMessage("Accesso negato: La tua email non è stata confermata. Controlla la posta elettronica.", true);
+                    } else {
+                        showMessage("Credenziali non valide. Riprova o verifica che l'account sia attivo.", true);
+                    }
                     return;
                 }
 
@@ -96,24 +135,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log("4. Login Supabase riuscito:", data.user.id);
 
                 // ===============================================
-                // LOGICA RUOLI (SIMULATA PER ORA)
+                // LOGICA RUOLI (SIMULATA)
                 // ===============================================
                 let nomeUtente = "Utente";
                 let ruoloUtente = "Cittadino"; 
 
-                if (username.toLowerCase().includes('procuratore')) {
+                // Usiamo l'email/identificativo originale per la logica dei ruoli fittizi
+                const lowerId = identificativo.toLowerCase();
+                if (lowerId.includes('procuratore') || lowerId.includes('ross')) {
                     nomeUtente = "Micheal Ross";
                     ruoloUtente = "Procuratore Generale";
-                } else if (username.toLowerCase().includes('admin')) {
+                } else if (lowerId.includes('admin')) {
                     nomeUtente = "System Admin";
                     ruoloUtente = "Admin";
-                } else if (username.toLowerCase().includes('giudice')) {
+                } else if (lowerId.includes('giudice') || lowerId.includes('rossi')) {
                     nomeUtente = "On. Rossi";
                     ruoloUtente = "Giudice";
                 }
 
                 // ===============================================
-                // 5. SALVATAGGIO DATI LOCALE (CRUCIALE PER LA GUARDIA DI AUTENTICAZIONE)
+                // 5. SALVATAGGIO DATI LOCALE
                 // ===============================================
                 const userData = {
                     id: data.user.id,
@@ -127,7 +168,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 showMessage("Accesso riuscito! Reindirizzamento...", false);
 
-                // Reindirizzamento con piccolo ritardo per evitare race condition
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
                 }, 500);

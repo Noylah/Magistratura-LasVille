@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magistratura - Portale Gestionale - Accesso</title>
+    <!-- Carica i nostri stili (assumendo che esista style.css) -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="login-page">
@@ -16,15 +17,15 @@
         
         <form class="login-form" id="loginForm"> 
             <div class="input-group">
-                <label for="username">Nome Utente</label>
-                <!-- Modificato da 'email' a 'username' -->
+                <!-- Etichetta per Nome Utente / Codice Fiscale -->
+                <label for="username">Nome Utente / Codice Fiscale</label>
                 <input type="text" id="username" name="username" required> 
             </div>
             <div class="input-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
             </div>
-            <!-- L'ID per il messaggio di errore è stato unificato per coerenza -->
+            <!-- Div per i messaggi di errore/successo, usato da login.js -->
             <div id="message-box" class="message-box" style="display: none;"></div>
             <button type="submit" class="login-button">ACCEDI</button>
             
@@ -32,10 +33,10 @@
         </form>
     </div>
     
-    <!-- ✅ LIBRERIA SUPABASE: DEVE ESSERE CARICATA PRIMA DEL TUO SCRIPT -->
+    <!-- ✅ 1. LIBRERIA SUPABASE: DEVE ESSERE CARICATA PER PRIMA PER RISOLVERE L'ERRORE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
     
-    <!-- TUO SCRIPT DI LOGICA -->
+    <!-- ✅ 2. IL TUO SCRIPT DI LOGICA: CARICATO SOLO DOPO LA LIBRERIA -->
     <script src="login.js"></script>
 </body>
 </html>

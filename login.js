@@ -23,7 +23,7 @@ const hideMessage = () => {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("1. DOM Caricato. Inizializzazione...");
+    console.log("1. DOM Caricato. Inizializzazione....");
 
     // Otteniamo l'elemento per i messaggi
     messageBox = document.getElementById('message-box');

@@ -1,5 +1,5 @@
-const SUPABASE_URL = 'INSERISCI_QUI_IL_TUO_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'INSERISCI_QUI_LA_TUA_ANON_KEY';
+const SUPABASE_URL = 'https://goupmhzwdqcicaztkrzc.supabase.co'; // <-- CONTROLLA QUI!
+const SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvdXBtaHp3ZHFjaWNhenRrcnpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1OTE1NzgsImV4cCI6MjA4MDE2NzU3OH0.Aua4gfzqU0iKLSO2BQEEZdt-oXWhrbNRCx_TFNkVmAA'; // <-- E ANCHE QUI!
 
 const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const welcomeMessageElement = document.getElementById('welcome-user-message');
     const roleDisplayElement = document.getElementById('user-role-display');
 
+    // Questi elementi DOM VENGONO ORA TROVATI IN dashboard.html!
     if (welcomeMessageElement) {
         welcomeMessageElement.textContent = `Benvenuto, ${nome} (${ruolo})`;
     }

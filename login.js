@@ -80,8 +80,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log(`3a. Identificativo non è una mail, cerco nel database: ${identificativo}`);
                 
                 // === AGGIORNA I NOMI DELLE TABELLE E DELLE COLONNE QUI! ===
-                const NOME_TABELLA_PROFILI = 'nome_tabella_profili'; 
-                const NOME_COLONNA_CF = 'nome_colonna_cf'; 
+                const NOME_TABELLA_PROFILI = 'utenti'; 
+                const NOME_COLONNA_CF = 'username'; 
                 // ========================================================
                 
                 const { data: userData, error: dbError } = await supabaseClient

@@ -1,49 +1,58 @@
 // CONFIGURAZIONE
-const SUPABASE_URL = 'https://goupmhzwdqcicaztkrzc.supabase.co'; 
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvdXBtaHp3ZHFjaWNhenRrcnpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1OTE1NzgsImV4cCI6MjA4MDE2NzU3OH0.Aua4gfzqU0iKLSO2BQEEZdt-oXWhrbNRCx_TFNkVmAA';
+const SUPABASE_URL = 'INSERISCI_QUI_IL_TUO_SUPABASE_URL'; // Da sostituire
+const SUPABASE_ANON_KEY = 'INSERISCI_QUI_LA_TUA_ANON_KEY'; // Da sostituire
 
-// Variabile per il client
+// Variabili globali per il client e il box messaggi
 let supabaseClient;
+let messageBox; 
+
+// Funzione helper per mostrare messaggi
+const showMessage = (message, isError = true) => {
+    if (!messageBox) {
+        console.error(`Tentativo di mostrare messaggio: ${message}`);
+        return;
+    }
+    messageBox.textContent = message;
+    messageBox.className = isError ? 'message-box error' : 'message-box success';
+    messageBox.style.display = 'block';
+};
+
+const hideMessage = () => {
+    if (messageBox) messageBox.style.display = 'none';
+};
+
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log("1. DOM Caricato. Inizializzazione...");
 
+    // Otteniamo l'elemento per i messaggi
+    messageBox = document.getElementById('message-box');
+
     // ===============================================
     // ✅ INIZIALIZZAZIONE ROBUSTA DEL CLIENT
     // ===============================================
-    // Controlliamo se la libreria è disponibile nell'oggetto globale window
+    // Controllo esplicito se la libreria Supabase è stata caricata
     if (!window.supabase) {
-        console.error("ERRORE CRITICO: Oggetto 'window.supabase' non trovato. La CDN non è stata caricata.");
-        alert("Errore tecnico: Libreria Supabase non trovata. Controlla la connessione internet o il file index.html.");
+        console.error("ERRORE CRITICO: Oggetto 'window.supabase' non trovato. Verifica l'ordine degli script in index.html!");
+        showMessage("ERRORE CRITICO: Servizio di autenticazione non disponibile. Controlla il file index.html.", true);
         return;
     }
 
     try {
-        // Creazione del client usando la funzione esposta globalmente
+        // Inizializzazione del client Supabase
         const { createClient } = window.supabase;
         supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log("2. Client Supabase inizializzato con successo.");
     } catch (e) {
         console.error("Errore durante la creazione del client:", e);
+        showMessage("ERRORE: Impossibile avviare il servizio di autenticazione.", true);
         return;
     }
 
     // ===============================================
-    // GESTIONE UI E FORM
+    // GESTIONE FORM
     // ===============================================
     const loginForm = document.getElementById('loginForm');
-    const messageBox = document.getElementById('message-box');
-
-    const showMessage = (message, isError = true) => {
-        if (!messageBox) return;
-        messageBox.textContent = message;
-        messageBox.className = isError ? 'message-box error' : 'message-box success';
-        messageBox.style.display = 'block';
-    };
-
-    const hideMessage = () => {
-        if (messageBox) messageBox.style.display = 'none';
-    };
 
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
@@ -67,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // LOGIN SUPABASE
             // ===============================================
             try {
-                // Usiamo l'input 'username' come email per Supabase
+                // Supabase richiede un campo 'email', qui usiamo l'input 'username'
                 const { data, error } = await supabaseClient.auth.signInWithPassword({
                     email: username,
                     password: password,
@@ -90,9 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // LOGICA RUOLI (SIMULATA PER ORA)
                 // ===============================================
                 let nomeUtente = "Utente";
-                let ruoloUtente = "Cittadino"; // Default
+                let ruoloUtente = "Cittadino"; 
 
-                // Logica semplice basata sulla stringa inserita per testare i ruoli
                 if (username.toLowerCase().includes('procuratore')) {
                     nomeUtente = "Micheal Ross";
                     ruoloUtente = "Procuratore Generale";
@@ -105,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // ===============================================
-                // SALVATAGGIO DATI LOCALE
+                // 5. SALVATAGGIO DATI LOCALE (CRUCIALE PER LA GUARDIA DI AUTENTICAZIONE)
                 // ===============================================
                 const userData = {
                     id: data.user.id,
@@ -115,11 +123,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
 
                 localStorage.setItem('userData', JSON.stringify(userData));
-                console.log("5. Dati salvati in localStorage. Reindirizzamento...");
+                console.log("6. Dati salvati in localStorage. Reindirizzamento...");
 
                 showMessage("Accesso riuscito! Reindirizzamento...", false);
 
-                // Ritardo minimo per permettere all'utente di leggere il messaggio (opzionale)
+                // Reindirizzamento con piccolo ritardo per evitare race condition
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
                 }, 500);

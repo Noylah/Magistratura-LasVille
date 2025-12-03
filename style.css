@@ -1,119 +1,131 @@
-/* RESET GENERALE E FONT */
+/* ========================================= */
+/* 1. RESET, FONT E VARIABILI GLOBALI        */
+/* ========================================= */
+
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-/* VARIABILI DI STILE */
+/* VARIABILI DI STILE (Palette Colori Istituzionale) */
 :root {
-    --primary-color: #FF5722; /* Arancione/Rosso istituzionale */
-    --background-dark: #1E1E1E; /* Sfondo Sidebar / Card */
-    --background-super-dark: #121212; /* Sfondo Main Content */
-    --text-light: #E0E0E0; /* Testo chiaro */
-    --text-secondary: #AAAAAA; /* Testo meno evidente */
-    --input-bg: #2C2C2C;
-    --border-color: #444;
-    --hover-color: #282828; /* Colore al passaggio del mouse nella sidebar */
+    --primary-color: #FF5722; /* Arancione Caldo - Colore Accent */
+    --secondary-color: #3f51b5; /* Blu Istituzionale - Colore Secondario */
+    --background-dark: #1F2125; /* Sfondo Sidebar / Card */
+    --background-super-dark: #161719; /* Sfondo Main Content (Nero leggero) */
+    --text-light: #ECEFF1; /* Testo chiaro */
+    --text-secondary: #90A4AE; /* Testo meno evidente */
+    --input-bg: #2C2E32;
+    --border-color: #37393D; /* Linee divisorie chiare */
+    --hover-color: #2D3035; /* Colore al passaggio del mouse nella sidebar */
 }
 
 /* STILI GLOBALI DEL BODY */
 body {
-    /* Times New Roman per un aspetto istituzionale */
-    font-family: "Times New Roman", Times, serif;
+    font-family: 'Open Sans', 'Times New Roman', Times, serif; /* Font più leggibile */
     color: var(--text-light);
     background-color: var(--background-super-dark);
     min-height: 100vh;
 }
 
-/* STILE SPECIFICO PER LA PAGINA DI LOGIN */
+/* ========================================= */
+/* 2. STILI PAGINA DI LOGIN                  */
+/* ========================================= */
+
 .login-page {
-    display: flex; /* Centra il container del login */
+    display: flex;
     justify-content: center;
     align-items: center;
 }
 
-/* SCHERMATA DI LOGIN */
 .login-container {
     background-color: var(--background-dark);
-    padding: 40px 50px;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    padding: 45px 55px;
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
     width: 100%;
-    max-width: 400px;
+    max-width: 420px;
     text-align: center;
     border-top: 5px solid var(--primary-color);
 }
 
 .login-header .icon {
-    font-size: 3rem;
+    font-size: 3.5rem;
     display: block;
     margin-bottom: 10px;
-}
-
-.login-header h1 {
-    font-size: 1.6rem;
-    margin-bottom: 5px;
     color: var(--primary-color);
 }
 
+.login-header h1 {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+    color: var(--text-light);
+}
+
 .login-header p {
-    font-size: 0.9rem;
-    margin-bottom: 25px;
+    font-size: 0.95rem;
+    margin-bottom: 30px;
     color: var(--text-secondary);
 }
 
-/* MODULO DI ACCESSO */
 .input-group {
     text-align: left;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 .input-group label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+    margin-bottom: 8px;
+    font-weight: 600;
     font-size: 0.9rem;
+    color: var(--text-secondary);
 }
 
 .login-form input[type="text"],
 .login-form input[type="password"] {
     width: 100%;
-    padding: 12px;
+    padding: 14px;
     background-color: var(--input-bg);
     border: 1px solid var(--border-color);
-    border-radius: 4px;
+    border-radius: 6px;
     color: var(--text-light);
     font-size: 1rem;
-    transition: border-color 0.3s;
+    transition: all 0.3s;
 }
 
 .login-form input:focus {
     border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.3);
     outline: none;
+    background-color: #232528;
 }
 
 .login-button {
     width: 100%;
-    padding: 12px;
+    padding: 14px;
     background-color: var(--primary-color);
     color: white;
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: bold;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    margin-top: 10px;
-    transition: background-color 0.3s;
+    margin-top: 15px;
+    transition: background-color 0.3s, transform 0.1s;
 }
 
 .login-button:hover {
     background-color: #E64A19;
 }
 
+.login-button:active {
+    transform: scale(0.99);
+}
+
 .forgot-password {
     display: block;
-    margin-top: 20px;
+    margin-top: 25px;
     font-size: 0.85rem;
     color: var(--text-secondary);
     text-decoration: none;
@@ -126,65 +138,82 @@ body {
 
 
 /* ========================================= */
-/* NUOVI STILI PER LA DASHBOARD (RISOLVE IL LAYOUT) */
+/* 3. STILI DASHBOARD (LAYOUT E STRUTTURA)   */
 /* ========================================= */
 
-/* Struttura principale a due colonne */
 .layout-container {
-    display: flex; /* Abilita la divisione SideBar + Main Content */
+    display: flex;
     min-height: 100vh;
     width: 100%;
 }
 
 /* SIDEBAR (Barra di Navigazione) */
 .sidebar {
-    width: 280px;
-    background-color: var(--background-dark); /* #1E1E1E */
+    width: 260px; /* Leggermente più stretta */
+    background-color: var(--background-dark);
     flex-shrink: 0;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-    /* L'altezza deve essere forzata, altrimenti è solo alta quanto il contenuto */
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.4);
     height: 100vh;
     position: sticky;
     top: 0;
-    padding: 0;
+    overflow-y: auto; /* Permette lo scroll se ci sono troppe voci */
+    padding-bottom: 20px;
 }
 
 .logo-section {
-    padding: 20px;
-    border-bottom: 1px solid var(--border-color);
+    padding: 25px 20px 20px;
     margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.logo-section .logo-icon {
+    font-size: 1.8rem;
+    color: var(--primary-color);
 }
 
 .logo-section .logo-text {
     font-size: 1.2rem;
-    font-weight: bold;
-    color: var(--text-light);
+    font-weight: 700;
+    line-height: 1;
+}
+
+.logo-section .sub-text {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    margin-top: 2px;
 }
 
 .navigazione {
     padding: 0 20px;
     text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 1px;
+    font-size: 0.7rem;
+    letter-spacing: 1.5px;
     color: var(--text-secondary);
     margin-bottom: 10px;
+    font-weight: 600;
 }
 
 .nav-list {
     list-style: none;
-    padding: 0;
+    padding: 0 10px;
+}
+
+.nav-list li {
+    margin-bottom: 5px;
 }
 
 .nav-list a {
     display: flex;
     align-items: center;
-    padding: 12px 20px;
-    margin: 4px 0;
+    padding: 12px 15px;
     color: var(--text-light);
     text-decoration: none;
-    font-size: 1rem;
-    border-radius: 4px;
-    transition: background-color 0.2s;
+    font-size: 0.95rem;
+    border-radius: 6px;
+    transition: background-color 0.2s, color 0.2s;
 }
 
 .nav-list a:hover {
@@ -194,49 +223,54 @@ body {
 .nav-list a.active {
     background-color: var(--primary-color);
     color: white;
-    font-weight: bold;
+    font-weight: 600;
+    box-shadow: 0 2px 5px rgba(255, 87, 34, 0.3);
 }
 
 .nav-list a.active .nav-icon {
-    color: white !important;
+    color: white;
 }
 
 .nav-icon {
     margin-right: 15px;
     font-size: 1.1rem;
-    /* Assicura che le icone mantengano il colore primario o bianco quando attive */
     color: var(--primary-color); 
 }
 
-/* MAIN CONTENT (Contenuto Principale) */
+/* MAIN CONTENT (Contenuto Principale e Header) */
 .main-content {
     flex-grow: 1;
-    background-color: var(--background-super-dark); /* #121212 */
+    background-color: var(--background-super-dark);
 }
 
-/* HEADER SUPERIORE (Sopra la Dashboard) */
+/* HEADER SUPERIORE */
 .top-header {
-    background-color: var(--background-dark); /* #1E1E1E */
-    padding: 15px 30px;
+    background-color: var(--background-dark);
+    padding: 20px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
 }
 
 .header-right {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 30px;
 }
 
 .role-info {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    background-color: #3f2f27; /* Sfondo scuro per il badge ruolo */
+    padding: 5px 10px;
+    border-radius: 4px;
 }
 
 .role-info .icon {
     margin-right: 5px;
-    color: var(--primary-color);
 }
 
 .logout-button {
@@ -244,7 +278,7 @@ body {
     border: none;
     color: var(--text-secondary);
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     transition: color 0.2s;
 }
 
@@ -254,104 +288,113 @@ body {
 
 /* AREA DASHBOARD */
 .dashboard-area {
-    padding: 30px;
+    padding: 40px;
 }
 
 .dashboard-area h1 {
-    font-size: 2.2rem;
-    margin-bottom: 10px;
+    font-size: 2.5rem;
+    margin-bottom: 5px;
     color: var(--text-light);
+    font-weight: 700;
 }
 
 .dashboard-area .welcome-message {
-    font-size: 1rem;
+    font-size: 1.05rem;
     color: var(--text-secondary);
-    margin-bottom: 30px;
+    margin-bottom: 40px;
 }
 
 
-/* STATISTICHE GRID */
+/* ========================================= */
+/* 4. STILI ELEMENTI DASHBOARD               */
+/* ========================================= */
+
+/* STATS GRID */
 .stats-grid {
     display: grid;
-    /* 4 colonne con larghezza dinamica */
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 40px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Card più grandi */
+    gap: 25px;
+    margin-bottom: 50px;
 }
 
 .stat-card {
     background-color: var(--background-dark);
-    padding: 20px;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    border-left: 3px solid var(--primary-color);
-    transition: transform 0.2s;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    border-left: 5px solid var(--primary-color); /* Bordo di accento */
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .stat-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
 }
 
 .stat-card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 .stat-card-header .title {
     font-size: 0.9rem;
     color: var(--text-secondary);
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .stat-card-header .icon {
     color: var(--primary-color);
-    font-size: 1.2rem;
+    font-size: 1.4rem;
 }
 
 .stat-card .value {
-    font-size: 2rem;
-    font-weight: bold;
+    font-size: 2.5rem;
+    font-weight: 700;
     color: var(--text-light);
+    line-height: 1.2;
 }
 
 .stat-card .change {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     margin-top: 5px;
+    font-weight: 600;
 }
 
 .positive {
-    color: #4CAF50; /* Verde */
+    color: #8BC34A; /* Verde più istituzionale */
 }
 
 .negative {
-    color: #F44336; /* Rosso */
+    color: #F44336; /* Rosso standard */
 }
 
 
 /* NOTIFICHE */
 .notifications-section {
     background-color: var(--background-dark);
-    padding: 25px;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
 .notifications-section h2 {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     color: var(--text-light);
-    margin-bottom: 15px;
-    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
     padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .notification-item {
     padding: 15px 0;
-    border-bottom: 1px dotted var(--border-color);
-    font-size: 0.95rem;
+    border-bottom: 1px dotted #2E3034;
+    font-size: 1rem;
     display: flex;
     align-items: flex-start;
+    gap: 15px;
 }
 
 .notification-item:last-child {
@@ -359,61 +402,58 @@ body {
 }
 
 .notification-dot {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     background-color: var(--primary-color);
     border-radius: 50%;
-    margin-right: 15px;
     flex-shrink: 0;
-    margin-top: 5px; /* Allinea al testo */
+    margin-top: 5px;
 }
 
 .notification-time {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     color: var(--text-secondary);
     margin-top: 5px;
 }
 
-/* Responsive design (Optional but good practice) */
+/* ========================================= */
+/* 5. RESPONSIVE DESIGN                      */
+/* ========================================= */
+
 @media (max-width: 1024px) {
     .sidebar {
-        width: 220px;
+        width: 200px; /* Sidebar più stretta su schermi medi */
     }
 }
 
 @media (max-width: 768px) {
     .layout-container {
-        flex-direction: column; /* Impila la sidebar sopra il contenuto */
+        flex-direction: column; /* Stack verticale su mobile */
     }
     
     .sidebar {
         width: 100%;
         height: auto;
         position: static;
-        padding: 10px 0;
+        padding-bottom: 10px;
     }
-    
-    .logo-section {
-        text-align: center;
-        margin-bottom: 0;
+
+    .dashboard-area {
+        padding: 20px;
     }
-    
-    .navigazione {
-        display: none; /* Nascondi l'intestazione 'NAVIGAZIONE' su mobile */
-    }
-    
+
     .nav-list {
         display: flex;
         justify-content: space-around;
-        padding: 0 10px;
+        padding: 0 5px;
         flex-wrap: wrap;
     }
     
     .nav-list a {
         flex-direction: column;
         align-items: center;
-        padding: 8px 10px;
+        padding: 8px;
         margin: 2px;
         font-size: 0.75rem;
     }
@@ -426,6 +466,11 @@ body {
     
     .top-header {
         flex-direction: column;
-        gap: 10px;
+        gap: 15px;
+        padding: 15px 20px;
+    }
+    
+    .header-right {
+        gap: 15px;
     }
 }

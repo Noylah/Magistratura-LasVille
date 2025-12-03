@@ -1,117 +1,135 @@
-const SUPABASE_URL = 'INSERISCI_QUI_IL_TUO_SUPABASE_URL'; // Sostituire con il tuo URL
-const SUPABASE_ANON_KEY = 'INSERISCI_QUI_LA_TUA_ANON_KEY'; // Sostituire con la tua KEY
+// CONFIGURAZIONE
+const SUPABASE_URL = 'https://goupmhzwdqcicaztkrzc.supabase.co'; 
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvdXBtaHp3ZHFjaWNhenRrcnpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1OTE1NzgsImV4cCI6MjA4MDE2NzU3OH0.Aua4gfzqU0iKLSO2BQEEZdt-oXWhrbNRCx_TFNkVmAA';
 
-// Variabile dichiarata ma non ancora inizializzata
-let supabase;
+// Variabile per il client
+let supabaseClient;
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("1. DOM Caricato. Inizializzazione...");
+
     // ===============================================
-    // ✅ RISOLUZIONE PROBLEMA 'Supabase is not defined'
-    // Inizializziamo il client Supabase qui, dove siamo certi che la libreria sia caricata.
+    // ✅ INIZIALIZZAZIONE ROBUSTA DEL CLIENT
     // ===============================================
-    try {
-        supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } catch (e) {
-        console.error("ERRORE CRITICO: La libreria Supabase non è stata caricata correttamente nell'HTML. Verifica il tag <script src='...'/>.", e);
-        // Puoi aggiungere un messaggio visibile all'utente qui se vuoi
+    // Controlliamo se la libreria è disponibile nell'oggetto globale window
+    if (!window.supabase) {
+        console.error("ERRORE CRITICO: Oggetto 'window.supabase' non trovato. La CDN non è stata caricata.");
+        alert("Errore tecnico: Libreria Supabase non trovata. Controlla la connessione internet o il file index.html.");
         return;
     }
-    
-    // L'ID del form è 'loginForm' nel file index.html
+
+    try {
+        // Creazione del client usando la funzione esposta globalmente
+        const { createClient } = window.supabase;
+        supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log("2. Client Supabase inizializzato con successo.");
+    } catch (e) {
+        console.error("Errore durante la creazione del client:", e);
+        return;
+    }
+
+    // ===============================================
+    // GESTIONE UI E FORM
+    // ===============================================
     const loginForm = document.getElementById('loginForm');
     const messageBox = document.getElementById('message-box');
 
-    // Funzione per mostrare un messaggio di errore o successo
     const showMessage = (message, isError = true) => {
+        if (!messageBox) return;
         messageBox.textContent = message;
-        // La classe 'error' o 'success' deve essere definita in style.css
         messageBox.className = isError ? 'message-box error' : 'message-box success';
         messageBox.style.display = 'block';
     };
 
-    // Nasconde la message box
     const hideMessage = () => {
-        messageBox.style.display = 'none';
+        if (messageBox) messageBox.style.display = 'none';
     };
 
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            hideMessage(); // Nascondi i messaggi precedenti
+            hideMessage();
 
-            // ✅ LEGGE IL CAMPO 'username' che rappresenta l'email/identificativo unico nel backend
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
+            console.log("3. Tentativo di invio form...");
+
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+
+            const username = usernameInput ? usernameInput.value.trim() : '';
+            const password = passwordInput ? passwordInput.value.trim() : '';
 
             if (!username || !password) {
-                showMessage("Per favore, inserisci Nome Utente/Codice Fiscale e password.");
+                showMessage("Inserisci tutti i campi.");
                 return;
             }
 
             // ===============================================
-            // 1. TENTATIVO DI AUTENTICAZIONE CON SUPABASE
-            //    Supabase utilizza internamente un campo 'email' per signInWithPassword.
-            //    Quindi, l'identificativo unico (Nome Utente/CF) viene passato come 'email'.
+            // LOGIN SUPABASE
             // ===============================================
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: username, // Passiamo il 'username' al campo 'email' di Supabase
-                password: password,
-            });
-
-            if (error) {
-                console.error("Errore di login:", error);
-                // Il messaggio è generico per ragioni di sicurezza (non riveliamo se è sbagliata solo l'email o solo la password)
-                showMessage("Login fallito. Verifica le tue credenziali.");
-                return;
-            }
-
-            // ===============================================
-            // 2. RECUPERO INFORMAZIONI AGGIUNTIVE (RUOLO)
-            // ===============================================
-            const userId = data.user.id;
-            
-            // Logica fittizia per assegnare un Ruolo per i test UI:
-            let nomeUtente = "Utente Generico";
-            let ruoloUtente = "Utente Giudiziario";
-            
-            if (username.includes('procuratore@')) {
-                nomeUtente = "Micheal Ross";
-                ruoloUtente = "Procuratore Generale";
-            } else if (username.includes('admin@')) {
-                nomeUtente = "Amministratore";
-                ruoloUtente = "Admin";
-            } else if (username.includes('giudice@')) {
-                nomeUtente = "Giudice Rossi";
-                ruoloUtente = "Giudice";
-            }
-            // FINE LOGICA FITTIZIA
-
-            // ===============================================
-            // 3. SALVATAGGIO DEI DATI UTENTE LOCALI (CRUCIALE per Auth Guard)
-            // ===============================================
-            const userData = {
-                id: userId,
-                nome: nomeUtente,
-                ruolo: ruoloUtente,
-                timestamp: new Date().getTime()
-            };
-
             try {
-                // IL SALVATAGGIO È SINCRONO
-                localStorage.setItem('userData', JSON.stringify(userData));
-                console.log("Dati utente salvati in localStorage:", userData);
-            } catch (e) {
-                console.error("Impossibile salvare in localStorage:", e);
-                showMessage("Errore interno: impossibile salvare i dati di sessione.");
-                return;
-            }
+                // Usiamo l'input 'username' come email per Supabase
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: username,
+                    password: password,
+                });
 
-            // ===============================================
-            // 4. REINDIRIZZAMENTO
-            // ===============================================
-            showMessage(`Accesso riuscito! Reindirizzamento...`, false);
-            // Reindirizza alla dashboard, che sarà protetta da authGuard.js
-            window.location.href = 'dashboard.html';
+                if (error) {
+                    console.warn("Login fallito:", error.message);
+                    showMessage("Credenziali non valide.");
+                    return;
+                }
+
+                if (!data || !data.user) {
+                    showMessage("Errore imprevisto: Nessun dato utente ricevuto.");
+                    return;
+                }
+
+                console.log("4. Login Supabase riuscito:", data.user.id);
+
+                // ===============================================
+                // LOGICA RUOLI (SIMULATA PER ORA)
+                // ===============================================
+                let nomeUtente = "Utente";
+                let ruoloUtente = "Cittadino"; // Default
+
+                // Logica semplice basata sulla stringa inserita per testare i ruoli
+                if (username.toLowerCase().includes('procuratore')) {
+                    nomeUtente = "Micheal Ross";
+                    ruoloUtente = "Procuratore Generale";
+                } else if (username.toLowerCase().includes('admin')) {
+                    nomeUtente = "System Admin";
+                    ruoloUtente = "Admin";
+                } else if (username.toLowerCase().includes('giudice')) {
+                    nomeUtente = "On. Rossi";
+                    ruoloUtente = "Giudice";
+                }
+
+                // ===============================================
+                // SALVATAGGIO DATI LOCALE
+                // ===============================================
+                const userData = {
+                    id: data.user.id,
+                    nome: nomeUtente,
+                    ruolo: ruoloUtente,
+                    loginTime: new Date().toISOString()
+                };
+
+                localStorage.setItem('userData', JSON.stringify(userData));
+                console.log("5. Dati salvati in localStorage. Reindirizzamento...");
+
+                showMessage("Accesso riuscito! Reindirizzamento...", false);
+
+                // Ritardo minimo per permettere all'utente di leggere il messaggio (opzionale)
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 500);
+
+            } catch (err) {
+                console.error("Errore imprevisto nel processo di login:", err);
+                showMessage("Errore di sistema durante il login.");
+            }
         });
+    } else {
+        console.warn("Elemento 'loginForm' non trovato nel DOM.");
     }
 });

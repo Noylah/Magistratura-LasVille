@@ -1,8 +1,8 @@
 const SUPABASE_URL = 'https://goupmhzwdqcicaztkrzc.supabase.co'; 
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvdXBtaHp3ZHFjaWNhenRrcnpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1OTE1NzgsImV4cCI6MjA4MDE2NzU1M30.Aua4gfzqU0iKLSO2BQEEZdt-oXWhrbNRCx_TFNkVmAA';
 
-// Inizializza il client Supabase usando window.supabase, come definito nel CDN in dashboard.html
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// ✅ Inizializza il client Supabase usando window.supabase, come definito nel CDN
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /**
  * Funzione per leggere i dati utente dal localStorage e aggiornare l'interfaccia.
@@ -61,7 +61,8 @@ const displayUserData = () => {
             const requiredRoles = item.getAttribute('data-role');
             
             if (requiredRoles) {
-                const allowedRoles = requiredRoles === 'all' ? ['all'] : requiredRoles.split(',');
+                // Rimuovi spazi per una corrispondenza pulita
+                const allowedRoles = requiredRoles.split(',').map(r => r.trim()); 
                 
                 // Se il ruolo dell'utente NON è incluso nei ruoli consentiti, nascondi la voce
                 if (requiredRoles !== 'all' && !allowedRoles.includes(ruolo)) {
@@ -95,7 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             
             // 1. Pulizia Sessione Supabase 
-            const { error } = await supabaseClient.auth.signOut(); 
+            // Usa la variabile 'supabase' definita all'inizio del file
+            const { error } = await supabase.auth.signOut(); 
 
             if (error) {
                 console.error('Errore durante il logout da Supabase:', error.message);

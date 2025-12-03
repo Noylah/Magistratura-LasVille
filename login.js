@@ -2,15 +2,18 @@ const SUPABASE_URL = 'INSERISCI_QUI_IL_TUO_SUPABASE_URL'; // Sostituire con il t
 const SUPABASE_ANON_KEY = 'INSERISCI_QUI_LA_TUA_ANON_KEY'; // Sostituire con la tua KEY
 
 // Inizializza Supabase Client
+// Nota: 'Supabase' è disponibile perché la CDN è caricata nell'HTML prima di questo script.
 const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.getElementById('login-form');
+    // L'ID del form è 'loginForm' nel file index.html
+    const loginForm = document.getElementById('loginForm');
     const messageBox = document.getElementById('message-box');
 
     // Funzione per mostrare un messaggio di errore o successo
     const showMessage = (message, isError = true) => {
         messageBox.textContent = message;
+        // La classe 'error' o 'success' deve essere definita in style.css
         messageBox.className = isError ? 'message-box error' : 'message-box success';
         messageBox.style.display = 'block';
     };
@@ -25,24 +28,28 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             hideMessage(); // Nascondi i messaggi precedenti
 
-            const email = document.getElementById('email').value.trim();
+            // ✅ LEGGE IL CAMPO 'username' che rappresenta l'email/identificativo unico nel backend
+            const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value.trim();
 
-            if (!email || !password) {
-                showMessage("Per favore, inserisci email e password.");
+            if (!username || !password) {
+                showMessage("Per favore, inserisci Nome Utente/Codice Fiscale e password.");
                 return;
             }
 
             // ===============================================
             // 1. TENTATIVO DI AUTENTICAZIONE CON SUPABASE
+            //    Supabase utilizza internamente un campo 'email' per signInWithPassword.
+            //    Quindi, l'identificativo unico (Nome Utente/CF) viene passato come 'email'.
             // ===============================================
             const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
+                email: username, // Passiamo il 'username' al campo 'email' di Supabase
                 password: password,
             });
 
             if (error) {
                 console.error("Errore di login:", error);
+                // Il messaggio è generico per ragioni di sicurezza (non riveliamo se è sbagliata solo l'email o solo la password)
                 showMessage("Login fallito. Verifica le tue credenziali.");
                 return;
             }
@@ -52,35 +59,34 @@ document.addEventListener('DOMContentLoaded', () => {
             // ===============================================
             const userId = data.user.id;
             
-            // Simula il recupero del ruolo dal database (questa logica DEVE essere implementata)
-            // Per ora usiamo una logica fittizia basata sull'email per i test:
-            let nomeUtente = "Utente";
+            // Logica fittizia per assegnare un Ruolo per i test UI:
+            let nomeUtente = "Utente Generico";
             let ruoloUtente = "Utente Giudiziario";
             
-            if (email.includes('procuratore@')) {
+            if (username.includes('procuratore@')) {
                 nomeUtente = "Micheal Ross";
                 ruoloUtente = "Procuratore Generale";
-            } else if (email.includes('admin@')) {
+            } else if (username.includes('admin@')) {
                 nomeUtente = "Amministratore";
                 ruoloUtente = "Admin";
-            } else if (email.includes('giudice@')) {
+            } else if (username.includes('giudice@')) {
                 nomeUtente = "Giudice Rossi";
                 ruoloUtente = "Giudice";
             }
             // FINE LOGICA FITTIZIA
 
             // ===============================================
-            // 3. SALVATAGGIO DEI DATI UTENTE LOCALI (CRUCIALE)
+            // 3. SALVATAGGIO DEI DATI UTENTE LOCALI (CRUCIALE per Auth Guard)
             // ===============================================
             const userData = {
                 id: userId,
                 nome: nomeUtente,
                 ruolo: ruoloUtente,
-                timestamp: new Date().getTime() // Aggiungiamo un timestamp per tracking
+                timestamp: new Date().getTime()
             };
 
             try {
-                // IL SALVATAGGIO È SINCRONO MA AVVIENE DOPO L'AWAIT SUPABASE
+                // IL SALVATAGGIO È SINCRONO
                 localStorage.setItem('userData', JSON.stringify(userData));
                 console.log("Dati utente salvati in localStorage:", userData);
             } catch (e) {
@@ -89,12 +95,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-
             // ===============================================
-            // 4. REINDIRIZZAMENTO (SOLO DOPO IL SALVATAGGIO)
+            // 4. REINDIRIZZAMENTO
             // ===============================================
             showMessage(`Accesso riuscito! Reindirizzamento...`, false);
-            // Non usiamo await qui, ma garantiamo che il codice sia eseguito in ordine
+            // Reindirizza alla dashboard, che sarà protetta da authGuard.js
             window.location.href = 'dashboard.html';
         });
     }

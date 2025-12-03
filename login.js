@@ -23,7 +23,7 @@ const hideMessage = () => {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("1. DOM Caricato. Inizializzazione...");
+    console.log("1. DOM Caricato. Inizializzazione....");
 
     // Otteniamo l'elemento per i messaggi
     messageBox = document.getElementById('message-box');
@@ -71,75 +71,55 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // ===============================================
-            // FASE 1: CERCA L'EMAIL ASSOCIATA ALL'IDENTIFICATIVO
-            // (NECESSARIA SOLO SE L'IDENTIFICATIVO NON È L'EMAIL)
+            // FASE 1: AUTENTICAZIONE TRAMITE FUNZIONE CUSTOM (RPC)
             // ===============================================
-            let emailPerLogin = identificativo;
+            console.log(`3a. Tentativo di login diretto (username/password) con identificativo: ${identificativo}`);
 
-            // Se l'identificativo NON assomiglia a un'email, cerchiamo il dato nel DB.
-            if (!identificativo.includes('@')) {
-                console.log(`3a. Identificativo non è una mail, cerco nel database la colonna email associata allo username: ${identificativo}`);
-                
-                // === CONFIGURAZIONE TABELLA E COLONNE FINALI ===
-                const NOME_TABELLA_PROFILI = 'utenti'; // Tabella utenti
-                const NOME_COLONNA_USERNAME = 'username'; // Colonna identificativa (che contiene il CF, ID, ecc.)
-                const NOME_COLONNA_EMAIL = 'email'; // 🚨🚨 QUESTA COSTANTE DEVE ESSERE IL NOME ESATTO DELLA TUA COLONNA EMAIL 🚨🚨
-                // ==============================================
-                
-                // Query per trovare l'email usando l'identificativo (Username/CF)
-                const { data: userData, error: dbError } = await supabaseClient
-                    .from(NOME_TABELLA_PROFILI)
-                    .select(NOME_COLONNA_EMAIL) 
-                    .eq(NOME_COLONNA_USERNAME, identificativo)
-                    .single(); 
+            // === CONFIGURAZIONE FUNZIONE RPC ===
+            // 🚨 DEVI CREARE LA FUNZIONE 'custom_login' IN SUPABASE. 
+            // Questa funzione deve ricevere username e password, verificarli sulla tabella 'utenti' 
+            // e, se validi, restituire l'ID UTENTE (UUID).
+            const NOME_FUNZIONE_RPC = 'custom_login'; 
+            // ===================================
+            
+            let userId = null;
 
-                // PGRST116 = nessun risultato trovato. Qualsiasi altro codice è un errore di sistema o RLS.
-                if (dbError && dbError.code !== 'PGRST116') { 
-                    console.error("ERRORE DB LOOKUP (RLS o colonna email mancante):", dbError);
-                    showMessage(`Errore: Impossibile cercare l'identificativo. Controlla il nome della colonna email ('${NOME_COLONNA_EMAIL}') e le Policy RLS.`, true); 
-                    return;
-                }
-
-                // Usiamo il nome della colonna per accedere al dato
-                if (userData && userData[NOME_COLONNA_EMAIL]) {
-                    emailPerLogin = userData[NOME_COLONNA_EMAIL];
-                    console.log(`3b. Trovata email associata: ${emailPerLogin}`);
-                } else {
-                    showMessage("Credenziali non valide. Identificativo non trovato.", true);
-                    return;
-                }
-            }
-
-
-            // ===============================================
-            // FASE 2: LOGIN SUPABASE CON L'EMAIL TROVATA
-            // ===============================================
             try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: emailPerLogin, // Questa deve essere l'email, non lo username
-                    password: password,
+                // Chiamata alla funzione del database per l'autenticazione
+                const { data: userData, error: rpcError } = await supabaseClient.rpc(NOME_FUNZIONE_RPC, {
+                    username_input: identificativo,
+                    password_input: password,
                 });
-
-                if (error) {
-                    console.warn("Login fallito:", error.message);
-                    
-                    if (error.message && error.message.includes('Email not confirmed')) {
-                        showMessage("Accesso negato: La tua email non è stata confermata. Controlla la posta elettronica.", true);
-                    } else {
-                        showMessage("Credenziali non valide. Riprova o verifica che l'account sia attivo.", true);
-                    }
+                
+                if (rpcError) { 
+                    // Questo errore può provenire da credenziali non valide (se gestito nella funzione) 
+                    // o da problemi RLS sulla funzione stessa.
+                    console.error("ERRORE RPC Login:", rpcError);
+                    showMessage("Credenziali non valide o errore di sistema. Assicurati che la funzione RPC esista e abbia RLS configurate (anon).", true); 
                     return;
                 }
 
-                if (!data || !data.user) {
-                    showMessage("Errore imprevisto: Nessun dato utente ricevuto.");
+                // Assumiamo che la funzione restituisca l'ID utente (UUID) in caso di successo
+                if (userData) {
+                    // La variabile 'userData' dovrebbe essere l'ID utente se la funzione è riuscita
+                    userId = userData; 
+                } else {
+                    showMessage("Credenziali non valide. Accesso negato dal sistema.", true);
                     return;
                 }
 
-                console.log("4. Login Supabase riuscito:", data.user.id);
+                if (!userId) {
+                    showMessage("Credenziali non valide. Accesso negato dal sistema.", true);
+                    return;
+                }
+
+
+                console.log("4. Login Custom RPC riuscito. ID Utente:", userId);
 
                 // ===============================================
                 // LOGICA RUOLI (SIMULATA)
+                // Se la RPC restituisse anche il ruolo, potresti usarlo qui
+                // Per ora, manteniamo la simulazione basata sull'input
                 // ===============================================
                 let nomeUtente = "Utente";
                 let ruoloUtente = "Cittadino"; 
@@ -159,14 +139,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 // ===============================================
                 // 5. SALVATAGGIO DATI LOCALE
                 // ===============================================
-                const userData = {
-                    id: data.user.id,
+                const dataSessione = {
+                    id: userId,
                     nome: nomeUtente,
                     ruolo: ruoloUtente,
                     loginTime: new Date().toISOString()
                 };
 
-                localStorage.setItem('userData', JSON.stringify(userData));
+                localStorage.setItem('userData', JSON.stringify(dataSessione));
                 console.log("6. Dati salvati in localStorage. Reindirizzamento...");
 
                 showMessage("Accesso riuscito! Reindirizzamento...", false);

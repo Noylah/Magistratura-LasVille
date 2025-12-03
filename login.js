@@ -1,5 +1,5 @@
 // CONFIGURAZIONE
-const SUPABASE_URL = 'https://goupmhzwdqcicaztkrzc.supabase.coL'; // Da sostituire
+const SUPABASE_URL = 'https://goupmhzwdqcicaztkrzc.supabase.co'; // ✅ VERIFICA E CORREGGI QUESTO URL!
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvdXBtaHp3ZHFjaWNhenRrcnpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1OTE1NzgsImV4cCI6MjA4MDE2NzU3OH0.Aua4gfzqU0iKLSO2BQEEZdt-oXWhrbNRCx_TFNkVmAA'; // Da sostituire
 
 // Variabili globali per il client e il box messaggi
@@ -79,21 +79,21 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!identificativo.includes('@')) {
                 console.log(`3a. Identificativo non è una mail, cerco nel database: ${identificativo}`);
                 
-                // === AGGIORNA I NOMI DELLE TABELLE E DELLE COLONNE QUI! ===
-                const NOME_TABELLA_PROFILI = 'utenti'; 
-                const NOME_COLONNA_CF = 'username'; 
-                // ========================================================
+                // === VERIFICA QUESTE DUE COSTANTI! ===
+                const NOME_TABELLA_PROFILI = 'profili'; // Esempio: Inserisci il nome della tua tabella profili
+                const NOME_COLONNA_CF = 'codice_fiscale'; // Esempio: Inserisci il nome della colonna contenente il Codice Fiscale
+                // =====================================
                 
+                // Query per trovare l'email usando l'identificativo (Codice Fiscale)
                 const { data: userData, error: dbError } = await supabaseClient
                     .from(NOME_TABELLA_PROFILI)
                     .select('email')
                     .eq(NOME_COLONNA_CF, identificativo)
-                    .single(); // Assumiamo che il Codice Fiscale sia unico
+                    .single(); 
 
-                if (dbError && dbError.code !== 'PGRST116') { // PGRST116 = nessun risultato
-                    console.error("Errore DB lookup:", dbError);
-                    // Non mostriamo un errore specifico per non dare indizi sull'esistenza dell'utente
-                    showMessage("Credenziali non valide. Riprova.", true); 
+                if (dbError && dbError.code !== 'PGRST116') { // PGRST116 = nessun risultato trovato
+                    console.error("ERRORE DB LOOKUP (RLS?):", dbError);
+                    showMessage("Errore: Impossibile cercare l'identificativo nel sistema. Controlla le Policy RLS.", true); 
                     return;
                 }
 
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // ===============================================
             try {
                 const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: emailPerLogin, // Usiamo l'email trovata o l'identificativo originale se era un'email
+                    email: emailPerLogin, 
                     password: password,
                 });
 
@@ -140,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 let nomeUtente = "Utente";
                 let ruoloUtente = "Cittadino"; 
 
-                // Usiamo l'email/identificativo originale per la logica dei ruoli fittizi
                 const lowerId = identificativo.toLowerCase();
                 if (lowerId.includes('procuratore') || lowerId.includes('ross')) {
                     nomeUtente = "Micheal Ross";

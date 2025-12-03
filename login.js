@@ -24,12 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = usernameInput.value.trim();
         const password = passwordInput.value.trim();
 
-        // 1. Esegui la query per cercare l'utente nel tuo database (Tabella 'utenti')
+        // 1. Esegui la query per cercare l'utente, richiedendo RUOLO E NOME COMPLETO
         const { data: user, error } = await supabase
-            .from('utenti') // Sostituisci 'utenti' con il nome della tua tabella se diverso
-            .select('ruolo') // Richiediamo solo il ruolo dopo l'autenticazione
+            .from('utenti') 
+            // MODIFICA: Richiediamo 'ruolo' e 'nome_completo'
+            .select('ruolo, nome_completo') 
             .eq('username', username) 
-            .eq('password', password) // ATTENZIONE: per un sito reale non si fa mai
+            .eq('password', password) 
             .single();
 
         if (error || !user) {
@@ -40,12 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Login Riuscito!
             errorMessage.style.display = 'none';
 
-            // 2. Salva il ruolo dell'utente (ad esempio, in localStorage)
+            // 2. Salva il RUOLO e il NOME COMPLETO dell'utente in localStorage
             localStorage.setItem('userRole', user.ruolo);
-            console.log(`Login riuscito. Ruolo: ${user.ruolo}`);
+            localStorage.setItem('userName', user.nome_completo); // NUOVA RIGA
+
+            console.log(`Login riuscito. Ruolo: ${user.ruolo}, Nome: ${user.nome_completo}`);
 
             // 3. Reindirizza alla Dashboard
-            // Nota: devi creare il file 'dashboard.html' nel prossimo step.
             window.location.href = 'dashboard.html'; 
         }
     });

@@ -23,7 +23,7 @@ const hideMessage = () => {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("1. DOM Caricato. Inizializzazione....");
+    console.log("1. DOM Caricato. Inizializzazione...");
 
     // Otteniamo l'elemento per i messaggi
     messageBox = document.getElementById('message-box');
@@ -79,10 +79,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!identificativo.includes('@')) {
                 console.log(`3a. Identificativo non è una mail, cerco nel database: ${identificativo}`);
                 
-                // === VERIFICA QUESTE DUE COSTANTI! ===
-                const NOME_TABELLA_PROFILI = 'profili'; // Esempio: Inserisci il nome della tua tabella profili
-                const NOME_COLONNA_CF = 'codice_fiscale'; // Esempio: Inserisci il nome della colonna contenente il Codice Fiscale
-                // =====================================
+                // === AGGIORNAMENTO FATTO QUI: TABELLA 'utenti', COLONNA 'codice_fiscale' ===
+                const NOME_TABELLA_PROFILI = 'utenti'; // 🚨 AGGIORNA CON IL NOME ESATTO DELLA TUA TABELLA 🚨
+                const NOME_COLONNA_CF = 'codice_fiscale'; // 🚨 AGGIORNA CON IL NOME ESATTO DELLA TUA COLONNA CF 🚨
+                // ==============================================================================
                 
                 // Query per trovare l'email usando l'identificativo (Codice Fiscale)
                 const { data: userData, error: dbError } = await supabaseClient
@@ -91,9 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     .eq(NOME_COLONNA_CF, identificativo)
                     .single(); 
 
-                if (dbError && dbError.code !== 'PGRST116') { // PGRST116 = nessun risultato trovato
-                    console.error("ERRORE DB LOOKUP (RLS?):", dbError);
-                    showMessage("Errore: Impossibile cercare l'identificativo nel sistema. Controlla le Policy RLS.", true); 
+                // PGRST116 = nessun risultato trovato. Qualsiasi altro codice è un errore di sistema.
+                if (dbError && dbError.code !== 'PGRST116') { 
+                    console.error("ERRORE DB LOOKUP (Tabella o RLS):", dbError);
+                    showMessage(`Errore: Impossibile cercare l'identificativo. Controlla il nome della tabella ('${NOME_TABELLA_PROFILI}') e le Policy RLS.`, true); 
                     return;
                 }
 

@@ -1,0 +1,117 @@
+/* RESET GENERALE E FONT */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    /* Times New Roman per un aspetto istituzionale */
+    font-family: "Times New Roman", Times, serif; 
+    color: #E0E0E0; /* Testo chiaro */
+    background-color: #121212; /* Sfondo molto scuro */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* VARIABILI DI STILE */
+:root {
+    --primary-color: #FF5722; /* Arancione/Rosso istituzionale (simile all'esempio) */
+    --background-dark: #1E1E1E; 
+    --text-light: #E0E0E0;
+    --input-bg: #2C2C2C;
+    --border-color: #444;
+}
+
+/* SCHERMATA DI LOGIN */
+.login-container {
+    background-color: var(--background-dark);
+    padding: 40px 50px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    border-top: 5px solid var(--primary-color); /* Linea d'accento */
+}
+
+.login-header .icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.login-header h1 {
+    font-size: 1.6rem;
+    margin-bottom: 5px;
+    color: var(--primary-color);
+}
+
+.login-header p {
+    font-size: 0.9rem;
+    margin-bottom: 25px;
+    color: #AAAAAA;
+}
+
+/* MODULO DI ACCESSO */
+.input-group {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.login-form input[type="text"],
+.login-form input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-light);
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.login-form input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.login-button {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+.login-button:hover {
+    background-color: #E64A19; /* Arancione leggermente più scuro */
+}
+
+.forgot-password {
+    display: block;
+    margin-top: 20px;
+    font-size: 0.85rem;
+    color: #AAAAAA;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.forgot-password:hover {
+    color: var(--primary-color);
+}

@@ -1,116 +1,86 @@
 const SUPABASE_URL = 'https://goupmhzwdqcicaztkrzc.supabase.co'; 
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvdXBtaHp3ZHFjaWNhenRrcnpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1OTE1NzgsImV4cCI6MjA4MDE2NzU1M30.Aua4gfzqU0iKLSO2BQEEZdt-oXWhrbNRCx_TFNkVmAA';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvdXBtaHp3ZHFjaWNhenRrcnpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1OTE1NzgsImV4cCI6MjA4MDE2NzU1M30.Aua4gfzqU0iKLSO2BQEEZdt-oXWhrbNRCx_TFNkVmAA';
 
-// ✅ CORREZIONE: Inizializza il client Supabase usando window.supabase
-// e assegnandolo a una variabile locale per il logout.
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Usa window.supabase per prevenire l'errore "supabase non definito"
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Funzione per mostrare i dati dell'utente, eseguita dopo il caricamento del DOM
-const displayUserData = () => {
-    // 1. Tenta di leggere i dati salvati dal login
-    const userDataString = localStorage.getItem('userData');
-    
-    // Se non ci sono dati, l'Auth Guard dovrebbe reindirizzare. 
-    // Qui gestiamo solo l'output in console per debug.
-    if (!userDataString) {
-        console.error("Errore: Dati utente non disponibili. L'utente non ha effettuato l'accesso.");
-        
-        // **Aggiungi un fallback UI se i dati sono mancanti ma l'Auth Guard non ha funzionato**
-        const welcomeMessageElement = document.getElementById('welcome-user-message');
-        if (welcomeMessageElement) {
-            welcomeMessageElement.textContent = `Caricamento...`;
-        }
-        const roleDisplayElement = document.getElementById('user-role-display');
-        if (roleDisplayElement) {
-            roleDisplayElement.textContent = "Ruolo Sconosciuto";
-        }
-        return; 
-    }
+    document.addEventListener('DOMContentLoaded', () => {
+        const loginForm = document.getElementById('loginForm');
+        const messageBox = document.getElementById('message-box');
 
-    try {
-        const userData = JSON.parse(userDataString);
-        // I nomi dei campi devono corrispondere ESATTAMENTE a quelli restituiti dalla funzione SQL: nome e ruolo
-        const { nome, ruolo } = userData; 
-
-        if (!nome || !ruolo) {
-            // Se i dati sono nel localStorage ma incompleti (es. manca il ruolo)
-            console.error("Dati utente incompleti nel localStorage.", userData);
+        if (!loginForm) {
+            console.error("Form di login non trovato. Verifica index.html");
             return;
         }
 
-        console.log(`4. Utente loggato rilevato: ${nome}, Ruolo: ${ruolo}`);
+        // Inizializza o pulisci il messaggio di errore
+        const showMessage = (text, isError = false) => {
+            messageBox.textContent = text;
+            messageBox.style.display = 'block';
+            messageBox.style.backgroundColor = isError ? '#f44336' : '#8BC34A';
+            messageBox.style.color = 'white';
+            messageBox.style.padding = '10px';
+            messageBox.style.borderRadius = '5px';
+            messageBox.style.marginBottom = '15px';
+            messageBox.style.textAlign = 'center';
+        };
 
-        // ===================================
-        // FUNZIONALITÀ DI PERSONALIZZAZIONE UI
-        // ===================================
-
-        // 1. Visualizzazione del Nome e Ruolo
-        const welcomeMessageElement = document.getElementById('welcome-user-message');
-        const roleDisplayElement = document.getElementById('user-role-display');
-
-        if (welcomeMessageElement) {
-            welcomeMessageElement.textContent = `Benvenuto, ${nome} (${ruolo})`;
-        }
-        if (roleDisplayElement) {
-            roleDisplayElement.textContent = ruolo;
-        }
-
-        // 2. Controllo Accesso alla Navigazione (Role-Based Access)
-        const navItems = document.querySelectorAll('#main-navigation li');
-        navItems.forEach(item => {
-            const requiredRoles = item.getAttribute('data-role');
-            
-            if (requiredRoles) {
-                const allowedRoles = requiredRoles === 'all' ? ['all'] : requiredRoles.split(',');
-                
-                // Se il ruolo dell'utente NON è incluso nei ruoli consentiti, nascondi la voce
-                if (requiredRoles !== 'all' && !allowedRoles.includes(ruolo)) {
-                    item.style.display = 'none';
-                    // Console log per debug:
-                    // console.log(`- Nascosto: ${item.querySelector('a').textContent.trim()} (Ruolo '${ruolo}' non autorizzato)`);
-                } else {
-                    item.style.display = ''; // Assicura che sia visibile
-                }
-            }
-        });
-
-        console.log("5. Personalizzazione UI completata. Menu filtrato per ruolo.");
-        
-    } catch (e) {
-        console.error("Errore nel parsing dei dati utente dal localStorage:", e);
-    }
-};
-
-
-document.addEventListener('DOMContentLoaded', () => {
-    console.log("3. DOM della Dashboard pronto. Inizializzazione logica.");
-
-    // Inizializza la visualizzazione dei dati utente
-    displayUserData();
-    
-    // ===================================
-    // FUNZIONALITÀ LOGOUT
-    // ===================================
-    const logoutButton = document.getElementById('logout-button');
-    if (logoutButton) {
-        logoutButton.addEventListener('click', async (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            // 1. Pulizia Sessione Supabase 
-            const { error } = await supabaseClient.auth.signOut(); 
+            messageBox.style.display = 'none'; // Nasconde i messaggi precedenti
 
-            if (error) {
-                console.error('Errore durante il logout da Supabase:', error.message);
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!username || !password) {
+                showMessage("Inserisci nome utente e password.", true);
+                return;
             }
-            
-            // 2. Pulizia Dati Locali
-            localStorage.removeItem('userData');
-            localStorage.removeItem('supabase.auth.token'); 
-            
-            console.log("Logout effettuato. Pulizia localStorage completata.");
-            
-            // 3. Reindirizzamento alla pagina di login
-            window.location.href = 'index.html';
+
+            try {
+                // Chiamata RPC alla funzione custom_login nel database
+                const { data, error } = await supabase.rpc('custom_login', {
+                    username_input: username,
+                    password_input: password
+                });
+
+                if (error) {
+                    const errorMessage = error.message.includes('LOGIN_ERROR') 
+                        ? error.message.split(': ')[1] 
+                        : "Errore di accesso generico.";
+                    
+                    showMessage(errorMessage, true);
+                    console.error("Errore RPC:", error);
+                    return;
+                }
+
+                // CONTROLLO CRITICO: Controlla che i dati essenziali siano presenti.
+                if (data && data.id && data.ruolo && data.nome) {
+                    console.log("Login riuscito. Dati utente ricevuti:", data);
+                    
+                    // === PUNTO CRITICO: SALVATAGGIO DEI DATI SENZA MODIFICHE ===
+                    // Salviamo l'oggetto JSON COMPLETO, inclusi nome e ruolo
+                    localStorage.setItem('userData', JSON.stringify(data));
+                    
+                    showMessage(`Accesso riuscito per ${data.nome} (${data.ruolo}). Reindirizzamento...`, false);
+                    
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 500);
+
+                } else {
+                    // Fallback: se i dati non sono completi, salviamo un default ma mostriamo un errore.
+                    showMessage("Risposta RPC inattesa o incompleta. Controlla la funzione SQL.", true);
+                    console.error("Dati ricevuti inattesi:", data);
+                }
+
+            } catch (e) {
+                showMessage("Errore di rete o del server.", true);
+                console.error("Eccezione durante il login:", e);
+            }
         });
-    }
-});
+
+        // Pulizia all'avvio della pagina di login
+        localStorage.removeItem('userData');
+        localStorage.removeItem('supabase.auth.token');
+    });
